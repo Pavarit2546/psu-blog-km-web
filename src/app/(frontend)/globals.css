@@ -1,0 +1,41 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+
+/* Design tokens. Brand colours are placeholders approximating PSU navy —
+   confirm against the official PSU corporate identity guide before production. */
+@theme {
+  --font-sans: var(--font-plex-thai), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-noto-serif-thai), ui-serif, Georgia, serif;
+
+  --color-brand-50: #eef4fb;
+  --color-brand-100: #d6e4f4;
+  --color-brand-200: #adc8e8;
+  --color-brand-500: #1d5ea8;
+  --color-brand-600: #134b8c;
+  --color-brand-700: #0b3b6f;
+  --color-brand-800: #082c54;
+  --color-brand-900: #061f3b;
+
+  --color-verified-50: #ecfdf5;
+  --color-verified-600: #059669;
+  --color-verified-700: #047857;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-white text-zinc-900 antialiased;
+  }
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-brand-500;
+  }
+}
+
+/* Comfortable long-form reading. */
+.article-body {
+  @apply prose prose-zinc max-w-none font-serif text-[1.125rem] leading-[1.9]
+    prose-headings:font-sans prose-headings:tracking-tight prose-a:text-brand-600
+    prose-blockquote:border-brand-200 prose-img:rounded-lg;
+}

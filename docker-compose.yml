@@ -1,0 +1,18 @@
+name: psu-blog-km-web
+services:
+  web:
+    build:
+      context: .
+      args:
+        API_ORIGIN: http://api:3000
+    image: psu-blog-km-web:local
+    environment:
+      API_ORIGIN: http://api:3000
+    ports:
+      - '127.0.0.1:3100:3000'
+    restart: unless-stopped
+    networks: [gateway]
+networks:
+  gateway:
+    external: true
+    name: psu-blog-km-gateway
