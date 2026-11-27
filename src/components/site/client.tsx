@@ -66,40 +66,44 @@ function Feedback({ error, done }: { error: string | null; done: string | null }
 // -----------------------------------------------------------------------------
 // Auth
 // -----------------------------------------------------------------------------
-export function LoginForm({ next }: { next: string }) {
+export function LoginForm({ next, emailLabel, text }: {
+  next: string
+  emailLabel: string
+  text: { signIn: string; pending: string; password: string; error: string }
+}) {
   const [pending, startTransition] = useTransition()
-  const [error, setError] = useState<string | null>(null)
+  const [failed, setFailed] = useState(false)
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const form = new FormData(e.currentTarget)
-    setError(null)
+    setFailed(false)
     startTransition(async () => {
       try {
         await api('/api/users/login', { body: { email: form.get('email'), password: form.get('password') } })
         window.location.assign(next)
       } catch {
         // Generic message: do not reveal whether the account exists.
-        setError('อีเมลหรือรหัสผ่านไม่ถูกต้อง หรือบัญชีถูกล็อกชั่วคราว')
+        setFailed(true)
       }
     })
   }
   return (
-    <form onSubmit={onSubmit} className="flex flex-col gap-4">
+    <form onSubmit={onSubmit} className="flex flex-col gap-5">
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="email">อีเมล (บัญชีทดสอบ)</Label>
+        <Label htmlFor="email">{emailLabel}</Label>
         <Input id="email" name="email" type="email" autoComplete="username" required />
       </div>
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="password">รหัสผ่าน</Label>
+        <Label htmlFor="password">{text.password}</Label>
         <Input id="password" name="password" type="password" autoComplete="current-password" required />
       </div>
-      {error && (
+      {failed && (
         <p role="alert" className="text-sm text-red-600">
-          {error}
+          {text.error}
         </p>
       )}
       <Button type="submit" disabled={pending} size="lg">
-        {pending ? 'กำลังเข้าสู่ระบบ…' : 'เข้าสู่ระบบ'}
+        {pending ? text.pending : text.signIn}
       </Button>
     </form>
   )
@@ -116,7 +120,7 @@ export function LogoutButton() {
       onClick={() =>
         startTransition(async () => {
           await api('/api/users/logout').catch(() => undefined)
-          router.push('/')
+          router.replace('/login')
           router.refresh()
         })
       }

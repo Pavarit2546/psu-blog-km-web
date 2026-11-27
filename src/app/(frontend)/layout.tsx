@@ -1,40 +1,14 @@
-import type { Metadata, Viewport } from 'next'
-import { IBM_Plex_Sans_Thai, Noto_Serif_Thai } from 'next/font/google'
 import Link from 'next/link'
-import { BookOpenText, LayoutDashboard, PenSquare, Search, ShieldCheck } from 'lucide-react'
+import { LayoutDashboard, PenSquare, Search, ShieldCheck } from 'lucide-react'
 import React from 'react'
 
 import { LogoutButton } from '@/components/site/client'
+import { SkipToContent } from '@/components/site/SkipToContent'
 import { Initials } from '@/components/site/AuthorChip'
 import { buttonVariants } from '@/components/ui/button'
-import { getAuthProvider } from '@/lib/auth/provider'
 import { getCurrentUser } from '@/lib/server/data'
 import { count } from '@/services/api'
 import { isAdmin } from '@/access/roles'
-import './globals.css'
-
-const plex = IBM_Plex_Sans_Thai({
-  subsets: ['thai', 'latin'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-plex-thai',
-  display: 'swap',
-})
-const serif = Noto_Serif_Thai({
-  subsets: ['thai', 'latin'],
-  weight: ['400', '600'],
-  variable: '--font-noto-serif-thai',
-  display: 'swap',
-})
-
-export const metadata: Metadata = {
-  title: { default: 'PSU Knowledge', template: '%s — PSU Knowledge' },
-  description: 'แพลตฟอร์มแบ่งปันและรับรององค์ความรู้ของบุคลากรมหาวิทยาลัยสงขลานครินทร์',
-  robots: { index: false, follow: false }, // MVP: keep out of search engines until go-live review
-}
-
-export const viewport: Viewport = { width: 'device-width', initialScale: 1, themeColor: '#0b3b6f' }
-
-export const dynamic = 'force-dynamic'
 
 async function Header() {
   const user = await getCurrentUser()
@@ -48,13 +22,10 @@ async function Header() {
     ).totalDocs
   }
   return (
-    <header className="sticky top-0 z-30 border-b border-zinc-200 bg-white/90 backdrop-blur">
+    <header className="sticky top-0 z-30 border-b border-zinc-200 border-t-4 border-t-brand-800 bg-white">
       <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4">
-        <Link href="/" className="flex items-center gap-2 font-bold tracking-tight text-brand-700">
-          <span className="flex size-8 items-center justify-center rounded-lg bg-brand-700 text-white">
-            <BookOpenText className="size-4.5" aria-hidden />
-          </span>
-          <span className="hidden text-lg sm:inline">PSU Knowledge</span>
+        <Link href="/" aria-label="PSU Knowledge หน้าหลัก" className="font-serif text-lg font-semibold leading-none text-brand-800 sm:text-2xl">
+          PSU<span className="hidden sm:inline"> Knowledge</span>
         </Link>
         <form action="/search" role="search" className="relative ml-1 flex-1 sm:max-w-xs">
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-400" aria-hidden />
@@ -119,32 +90,18 @@ async function Header() {
   )
 }
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const provider = getAuthProvider()
+export default function SiteLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="th" className={`${plex.variable} ${serif.variable}`}>
-      <body className="flex min-h-dvh flex-col font-sans">
-        <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-white focus:px-3 focus:py-2">
-          ข้ามไปยังเนื้อหา
-        </a>
-        {provider.isDevelopmentOnly && (
-          <div className="bg-amber-100 px-4 py-1.5 text-center text-xs text-amber-900">
-            โหมดพัฒนา: <strong>Mock PSU Authentication</strong> — ไม่ใช่ PSU SSO จริง ใช้บัญชีทดสอบเท่านั้น
-          </div>
-        )}
-        <Header />
-        <main id="main" className="flex-1">
-          {children}
-        </main>
-        <footer className="border-t border-zinc-200 bg-zinc-50">
-          <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-8 text-sm text-zinc-500 sm:flex-row sm:justify-between">
-            <p>PSU Knowledge · มหาวิทยาลัยสงขลานครินทร์ (MVP — ข้อมูลตัวอย่าง)</p>
-            <p>
-              Community Blog เผยแพร่ได้ทันที · <span className="text-verified-700">PSU Verified</span> ผ่านการรับรองโดย CoP
-            </p>
-          </div>
-        </footer>
-      </body>
-    </html>
+    <>
+      <SkipToContent>ข้ามไปยังเนื้อหา</SkipToContent>
+      <Header />
+      <main id="main" className="flex-1">{children}</main>
+      <footer className="border-t border-zinc-200">
+        <div className="mx-auto flex max-w-6xl flex-wrap justify-between gap-2 px-4 py-6 text-sm text-zinc-600">
+          <p className="font-serif font-semibold text-brand-800">PSU Knowledge</p>
+          <p>กองบริหารทรัพยากรบุคคล · มหาวิทยาลัยสงขลานครินทร์</p>
+        </div>
+      </footer>
+    </>
   )
 }

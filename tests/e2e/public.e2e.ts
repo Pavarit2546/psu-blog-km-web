@@ -1,13 +1,12 @@
 import { expect, test } from './fixtures'
 
 test.describe('Public site (anonymous)', () => {
-  test('homepage shows branding, mock-auth banner and verified knowledge', async ({ page }) => {
+  test('visitors entering the site see the login form first', async ({ page }) => {
     await page.goto('/')
-    await expect(page.getByText('Mock PSU Authentication').first()).toBeVisible()
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('แบ่งปันความรู้')
-    await expect(page.getByRole('heading', { name: 'PSU Verified Knowledge' })).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'ล่าสุด' })).toBeVisible()
-    await expect(page.getByRole('link', { name: 'เข้าสู่ระบบ' }).first()).toBeVisible()
+    await expect(page).toHaveURL(/\/login$/)
+    await expect(page.getByRole('heading', { name: 'เข้าสู่ระบบ' })).toBeVisible()
+    await expect(page.getByRole('link', { name: /PSU Passport/ })).toHaveAttribute('href', '/login/passport')
+    await expect(page.getByRole('button', { name: 'เข้าสู่ระบบ' })).toBeVisible()
   })
 
   test('verified article shows the PSU Verified badge and verification details', async ({ page }) => {

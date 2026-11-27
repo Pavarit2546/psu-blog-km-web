@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" next build",
-    "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev -p 3100",
+    "dev": "node --no-deprecation ./node_modules/next/dist/bin/next dev -p 3100",
     "lint": "cross-env NODE_OPTIONS=--no-deprecation eslint .",
     "start": "next start -p 3100",
     "typecheck": "tsc --noEmit",

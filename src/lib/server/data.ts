@@ -1,9 +1,11 @@
+import { cookies } from 'next/headers'
 import { cache } from 'react'
 
 import type { Article, Community, Media, Tag, User } from '@/payload-types'
 import { ApiError, apiRequest, find, type Where } from '@/services/api'
 
 export const getCurrentUser = cache(async (): Promise<User | null> => {
+  if (!(await cookies()).get('psu-km-token')?.value) return null
   try {
     const { user } = await apiRequest<{ user: User | null }>('/api/users/me?depth=0')
     return user?.status === 'SUSPENDED' ? null : user

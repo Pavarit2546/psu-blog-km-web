@@ -24,7 +24,7 @@ test.describe('Responsive layout', () => {
 
   test('mobile navigation is shown on small screens', async ({ page, isMobile }) => {
     test.skip(!isMobile, 'mobile-only')
-    await page.goto('/')
+    await page.goto('/articles')
     const nav = page.getByRole('navigation', { name: 'เมนูมือถือ' })
     await expect(nav).toBeVisible()
     await nav.getByRole('link', { name: 'ชุมชน' }).click()

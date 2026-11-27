@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { ArrowRight, BadgeCheck, PenSquare, TrendingUp, Users } from 'lucide-react'
 
 import { ArticleCard, ArticleRow } from '@/components/site/ArticleCard'
@@ -8,7 +9,7 @@ import { find } from '@/services/api'
 import { getCommunities } from '@/services/projections'
 
 export default async function HomePage() {
-  const user = await getCurrentUser()
+  if (!(await getCurrentUser())) redirect('/login')
 
   const [featured, latest, popular, verified, communities, tags] = await Promise.all([
     listArticles({ where: { featured: { equals: true } }, limit: 3 }),
@@ -20,34 +21,23 @@ export default async function HomePage() {
   ])
 
   const hero = featured.docs[0] ?? latest.docs[0]
-  const sideFeatured = (featured.docs.length > 1 ? featured.docs.slice(1) : latest.docs.slice(1, 3)).slice(0, 2)
+  const sideFeatured = (featured.docs.length > 1 ? featured.docs : latest.docs)
+    .filter((article) => article.id !== hero?.id).slice(0, 2)
 
   return (
     <div>
-      <section className="border-b border-zinc-200 bg-gradient-to-b from-brand-50 to-white">
-        <div className="mx-auto max-w-6xl px-4 py-12 sm:py-16">
-          <p className="text-sm font-medium text-brand-600">มหาวิทยาลัยสงขลานครินทร์ · กองบริหารทรัพยากรบุคคล</p>
-          <h1 className="mt-3 max-w-3xl text-4xl font-bold leading-tight tracking-tight text-zinc-900 sm:text-5xl">
-            แบ่งปันความรู้จากหน้างาน <span className="text-brand-700">ให้เติบโตเป็นความรู้องค์กร</span>
-          </h1>
-          <p className="mt-4 max-w-2xl font-serif text-lg text-zinc-600">
-            เขียนและเผยแพร่ได้ทันทีในรูปแบบ Community Blog และเลือกส่งให้ชุมชนนักปฏิบัติ (CoP) รับรองเป็น{' '}
-            <span className="font-semibold text-verified-700">PSU Verified Knowledge</span>
-          </p>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <a href={user ? '/write' : '/login?next=/write'} className={buttonVariants({ size: 'lg' })}>
-              <PenSquare aria-hidden /> เริ่มเขียน
-            </a>
-            <Link href="/articles?verified=1" className={buttonVariants({ variant: 'outline', size: 'lg' })}>
-              <BadgeCheck aria-hidden className="text-verified-600" /> ความรู้ที่ได้รับการรับรอง
-            </Link>
-          </div>
+      <section className="mx-auto max-w-6xl px-4 pt-10 sm:pt-14">
+        <div className="flex flex-wrap items-end justify-between gap-5 border-b-2 border-brand-800 pb-5">
+          <h1 className="font-serif text-4xl font-semibold leading-snug text-brand-800 sm:text-5xl">คลังความรู้ ม.อ.</h1>
+          <a href="/write" className={buttonVariants()}>
+            <PenSquare aria-hidden /> เขียนบทความ
+          </a>
         </div>
       </section>
 
       {hero && (
         <section className="mx-auto max-w-6xl px-4 py-10" aria-labelledby="featured-heading">
-          <h2 id="featured-heading" className="mb-5 text-sm font-semibold uppercase tracking-wider text-zinc-500">
+          <h2 id="featured-heading" className="mb-5 font-serif text-2xl font-semibold text-brand-800">
             บทความแนะนำ
           </h2>
           <div className="grid gap-8 lg:grid-cols-[2fr_1fr]">
@@ -61,7 +51,7 @@ export default async function HomePage() {
         </section>
       )}
 
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 pb-16 lg:grid-cols-[1fr_320px]">
+      <div className="mx-auto grid max-w-6xl gap-10 px-4 pt-6 pb-16 lg:grid-cols-[1fr_320px]">
         <section aria-labelledby="latest-heading">
           <div className="flex items-center justify-between border-b border-zinc-200 pb-3">
             <h2 id="latest-heading" className="text-xl font-bold tracking-tight">
@@ -72,7 +62,7 @@ export default async function HomePage() {
             </Link>
           </div>
           {latest.docs.length === 0 ? (
-            <p className="py-10 text-center text-zinc-500">ยังไม่มีบทความ — เป็นคนแรกที่แบ่งปันความรู้!</p>
+            <p className="py-10 text-center text-zinc-500">ยังไม่มีบทความที่เผยแพร่</p>
           ) : (
             latest.docs.map((a) => <ArticleRow key={a.id} article={a} />)
           )}
@@ -80,7 +70,7 @@ export default async function HomePage() {
 
         <aside className="flex flex-col gap-10">
           {verified.docs.length > 0 && (
-            <section aria-labelledby="verified-heading" className="rounded-xl border border-verified-600/20 bg-verified-50/60 p-5">
+            <section aria-labelledby="verified-heading" className="border-t-2 border-verified-700 pt-4">
               <h2 id="verified-heading" className="flex items-center gap-2 font-bold text-verified-700">
                 <BadgeCheck className="size-5" aria-hidden /> PSU Verified Knowledge
               </h2>
@@ -152,15 +142,13 @@ export default async function HomePage() {
                 <Link
                   key={c.id}
                   href={`/communities/${c.slug}`}
-                  className="group overflow-hidden rounded-xl border border-zinc-200 bg-white transition-shadow hover:shadow-md"
+                  className="group border-t border-zinc-300 pt-4"
                 >
                   {cover ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={cover} alt="" className="aspect-[3/1] w-full object-cover" loading="lazy" />
-                  ) : (
-                    <div className="aspect-[3/1] bg-brand-100" />
-                  )}
-                  <div className="p-4">
+                    <img src={cover} alt="" className="mb-4 aspect-[3/1] w-full object-cover" loading="lazy" />
+                  ) : null}
+                  <div>
                     <h3 className="font-semibold group-hover:text-brand-700">{c.name}</h3>
                     <p className="mt-1 line-clamp-2 text-sm text-zinc-600">{c.description}</p>
                     <p className="mt-2 text-xs text-zinc-500">{c.memberCount} สมาชิก</p>

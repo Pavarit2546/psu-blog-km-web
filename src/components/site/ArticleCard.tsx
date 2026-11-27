@@ -81,19 +81,17 @@ export function ArticleCard({
   const ratio = large ? 'aspect-[16/9]' : 'aspect-[16/10]'
   return (
     <article className={cn('group flex flex-col', className)}>
-      <Link href={`/articles/${article.slug}`} className="block overflow-hidden rounded-xl bg-zinc-100" tabIndex={-1} aria-hidden>
-        {cover ? (
-          // eslint-disable-next-line @next/next/no-img-element
+      {cover && (
+        <Link href={`/articles/${article.slug}`} className="block overflow-hidden" tabIndex={-1} aria-hidden>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={cover}
             alt=""
             loading="lazy"
             className={cn('w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]', ratio)}
           />
-        ) : (
-          <div className={cn('w-full bg-gradient-to-br from-brand-100 to-brand-200', ratio)} />
-        )}
-      </Link>
+        </Link>
+      )}
       <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-zinc-500">
         {community && <span className="font-medium text-brand-700">{community.name}</span>}
         <VerificationBadge status={article.verification_status === 'VERIFIED' ? 'VERIFIED' : null} />
@@ -101,7 +99,7 @@ export function ArticleCard({
       <Link href={`/articles/${article.slug}`}>
         <h3
           className={cn(
-            'mt-1.5 font-bold leading-snug tracking-tight text-zinc-900 group-hover:text-brand-700',
+            'mt-1.5 font-serif font-semibold leading-snug text-brand-800 group-hover:text-brand-700',
             large ? 'text-2xl sm:text-3xl' : 'text-lg',
           )}
         >
